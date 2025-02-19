@@ -20,5 +20,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
+  ],
+  "trustedDependencies": [
+    "@clerk/shared",
+    "core-js-pure",
+    "discord-clone"
   ]
 }
