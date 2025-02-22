@@ -1,16 +1,16 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
+}
+
+enum FriendRequestState {
+  PENDING
+  ACCEPTED
+  DECLINED
 }
 
 model User {
@@ -21,35 +21,77 @@ model User {
   email String @unique
   password String?
   imageUrl String?
+  createdAt DateTime
   serverIds String[] @db.ObjectId
-  servers Server[] @relation(fields: [serverIds], references: [id])
+  servers Server[] @relation("Participants",fields: [serverIds], references: [id])
+  bannedServerIds String[] @db.ObjectId
+  bannedServers Server[] @relation("BannedUsers",fields: [bannedServerIds], references: [id])
   eligibleChannelIds String[] @db.ObjectId
   eligibleChannels Channel[] @relation(fields: [eligibleChannelIds], references: [id])
+  friendIds String[] @db.ObjectId
+  friends User[] @relation("Friends", fields: [friendIds], references: [id])
+  friendsOf User[] @relation("Friends", fields: [friendIds], references: [id])
+  directMessageIds String[] @db.ObjectId
+  directMessages Dm[] @relation(name: "DmToUser", fields: [directMessageIds], references: [id])
+  friendRequestsSent FriendRequests[] @relation("SentFriendRequests")
+  friendRequestsSentIds String[] @db.ObjectId
+  friendRequestsReceived FriendRequests[] @relation("ReceivedFriendRequests")
+  friendRequestsReceivedIds String[] @db.ObjectId
+  messages Message[]
+  ownedServers Server[]
 }
 
 model Server {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   name String
+  createdAt DateTime
   participantIds String[] @db.ObjectId
-  participants User[] @relation(fields: [participantIds], references: [id])
-  channels Channel[]
+  participants User[] @relation("Participants", fields: [participantIds], references: [id])
+  ownerId String @db.ObjectId
+  owner User @relation(fields: [ownerId], references: [id])
+  channels Channel[] @relation("Channels")
   imageUrl String?
   bannerUrl String?
+  bannedUserIds String[] @db.ObjectId
+  bannedUsers User[] @relation("BannedUsers", fields: [bannedUserIds], references: [id])
 }
 
 model Channel {
   id String @id @map("_id") @default(auto()) @db.ObjectId
+  name String
   messages Message[]
-  elgibleUserIds String[] @db.ObjectId
-  elgibleUsers User[] @relation(fields: [elgibleUserIds], references: [id])
-  serverId String? @db.ObjectId
-  server Server? @relation(fields: [serverId], references: [id])
+  eligibleUserIds String[] @db.ObjectId
+  eligibleUsers User[] @relation(fields: [eligibleUserIds], references: [id])
+  serverId String @db.ObjectId
+  server Server @relation("Channels", fields: [serverId], references: [id])
+}
+
+model Dm {
+  id String @id @map("_id") @default(auto()) @db.ObjectId
+  userIds String[] @db.ObjectId
+  users User[] @relation(name: "DmToUser", fields: [userIds], references: [id])
+  messages Message[]
+  imageUrl String?
 }
 
 model Message {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   content String?
   embeds String[]
-  channelId String @db.ObjectId
-  channel Channel @relation(fields: [channelId], references: [id])
+  channelId String? @db.ObjectId
+  channel Channel? @relation(fields: [channelId], references: [id])
+  dmId String? @db.ObjectId
+  dm Dm? @relation(fields: [dmId], references: [id])
+  authorId String @db.ObjectId
+  author User @relation(fields: [authorId], references: [id])
+  sentAt DateTime
+}
+
+model FriendRequests {
+  id String @id @map("_id") @default(auto()) @db.ObjectId
+  sentById String @db.ObjectId
+  sentBy User @relation("SentFriendRequests", fields: [sentById], references: [id])
+  sentToId String @db.ObjectId
+  sentTo User @relation("ReceivedFriendRequests", fields: [sentToId], references: [id])
+  state FriendRequestState
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 
 const page = () => {
-  return <div>Signin Page</div>
+  return <div>ananın amı</div>
 }
 
 export default page

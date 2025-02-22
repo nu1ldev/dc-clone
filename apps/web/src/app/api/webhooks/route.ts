@@ -4,6 +4,12 @@ import { WebhookEvent } from '@clerk/nextjs/server'
 import { db } from '@/db'
 import { randomUUID } from 'node:crypto'
 
+export const config = {
+  api: {
+    bodyParser: true, // Next.js'in body'yi JSON olarak parse ettiğinden emin ol
+  },
+};
+
 export async function POST(req: Request) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET
 
@@ -28,14 +34,18 @@ export async function POST(req: Request) {
   }
 
   // Get body
-  const payload = await req.json()
-  const body = JSON.stringify(payload)
-
+  let body;
+  try {
+    const rawBody = await req.text()
+    body = JSON.parse(rawBody)
+  } catch (error) {
+    console.error('trycatch:', error)
+  }
   let evt: WebhookEvent
 
   // Verify payload with headers
   try {
-    evt = wh.verify(body, {
+    evt = wh.verify(JSON.stringify(body), {
       'svix-id': svix_id,
       'svix-timestamp': svix_timestamp,
       'svix-signature': svix_signature,
@@ -57,9 +67,18 @@ export async function POST(req: Request) {
         token: randomUUID({ disableEntropyCache: true }),
         imageUrl: evt.data.image_url,
         clerk_id: evt.data.id,
+        createdAt: evt.data.created_at.toString()
       }
     })
     return new Response(JSON.stringify(user), { status: 200 })
+  }
+  else if (eventType === 'user.deleted') {
+    await db.user.delete({
+      where: {
+        clerk_id: evt.data.id
+      }
+    })
+    return new Response('User deleted', { status: 200 })
   }
   return new Response('Error: Unknown event type', { status: 400 })
 }

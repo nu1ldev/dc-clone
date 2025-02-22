@@ -1,29 +1,23 @@
-import React from 'react'
 import { db } from '@/db'
-import type { Channel, Server } from '@prisma/client'
+import type { Server, Channel } from '@prisma/client'
+import { redirect } from 'next/navigation'
 
-const Channel = async ({ params }: { params: Promise<{ id: string }> }) => {
+const Channelbbb = async ({ params }: { params: Promise<{ id: string }> }) => {
+  // id = serverid -> '67b4ccc543cde1c16b35215c': ankaralilar06
   const { id } = await params
-  let channelOrServer: 'server' | 'dm';
-  let obj: Channel | Server;
-  if (!db.channel.findUniqueOrThrow({ where: { id } })) {
-    channelOrServer = 'server'
-  } else {
-    channelOrServer = 'dm'
-  }
+  const messages = await db.message.findMany({
+    where: {
+      id
+    },
+    orderBy: {
+      sentAt: 'asc'
+    }
+  })
   return (
-    <div>
-      {channelOrServer == 'dm' ? (
-        <div>
+    <div id='messages'>
 
-        </div>
-      ) : (
-        <div>
-          
-        </div>
-      )}
     </div>
   )
 }
 
-export default Channel
+export default Channelbbb

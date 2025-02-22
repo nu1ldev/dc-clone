@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Server from "./Server"
+import { redirect } from "next/navigation"
 
 const Servers = ({
   user
@@ -12,14 +13,14 @@ const Servers = ({
     token: string
     username: string
     email: string
-    password: string | null
+    password?: string | null
     imageUrl: string | null
-    serverIds: string[]
-    eligibleChannelIds: string[]
+    serverIds?: string[]
+    eligibleChannelIds?: string[]
   }
 }) => {
   const { data, isError, isLoading } = useQuery({ queryKey: ['get-servers'], queryFn: async () => {
-    const r = await fetch('/api/get-servers-by-user-id', {
+    const r = await fetch('http://localhost:9999/get-server', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -30,7 +31,6 @@ const Servers = ({
     })
     return await r.json()
   } })
-  console.log(data)
   return (
     <div
       id='sidebar-servers'
@@ -38,19 +38,20 @@ const Servers = ({
     >
       <div
         id='home'
+        onClick={() => redirect('/channels')}
         className='rounded-xl bg-[#2b2d31] hover:bg-indigo-500 transition cursor-pointer p-2 w-12 h-12 flex flex-row items-center justify-center group/home'
       >
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859m-19.5.338V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H6.911a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661Z" />
         </svg>
-        <div id="tooltip" className='scale-0 group-hover/home:scale-100 absolute translate-x-24 flex items-center rounded-md bg-gray-800 p-2 shadow-md'>
+        <div id="tooltip" className='scale-0 group-hover/home:scale-100 absolute z-10 translate-x-24 flex items-center rounded-md bg-gray-800 p-2 shadow-md'>
           Direct Messages
         </div>
       </div>
-      <div className='bg-white/20 h-[0.2px w-12 mx-auto]' />
+      <div className='bg-primary h-1 w-10 rounded' />
       <div id="servers" className='flex flex-col items-center gap-y-3'>
       {!isLoading ? data.map((server: { name: string, imageUrl?: string, id: string }) => (
-          <Server {...server} key={server.name} />
+          <Server server={server} key={server.name} />
         )) : (
           <div className='flex flex-col gap-y-4 items-center justify-center'>
             {(() => {
