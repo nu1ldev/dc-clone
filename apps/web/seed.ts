@@ -1,24 +1,62 @@
 import { db } from "@/db";
+import { ChannelType } from "@prisma/client";
 
-// nu1ldev.id = 67b495fac2acffcd5c2d92a5
-// ankaralilar06.id = 67b4ccc543cde1c16b35215c
+// nu1ldev.id = 67b9c881ce6d899fa9563f92
+// ankaralılar06.id = 67b9d6a506c01be8b4df8c77
+// general.id = 67ba03e7b5db1baeaffe3eab
 
-(async () => {
+const date = new Date()
+;(async () => {
   await db.$connect();
-  await db.message.createMany({
-    data: [
-      {
-        channelId: '67b636d017cb92218264d3d6',
-        content: 'General bambambam',
-        authorId: '67b495fac2acffcd5c2d92a5'
+  await db.dm.create({
+    data: {
+      userIds: {
+        set: ['67b9c881ce6d899fa9563f92', '67b9d6f54b01abe30275517f']
       },
-      {
-        channelId: '67b636d017cb92218264d3d6',
-        content: 'bayri mallık var mı, yok mu? bambambam. Fenerbahçe mi, Galatasaray mı? bambambam, Beşiktaş mı, Trabzonspor mu? bambambam, Ankaragücü mü, Gençlerbirliği mi? bambambam, bırak futbolu, basketbol mu, voleybol mu? bambambam, bırak sporu, siyaset mi, ekonomi mi? bambambam, bırak siyaseti, bilim mi, sanat mı? bambambam, bırak sanatı, kadın mı, erkek mi? bambambam, bırak cinsiyeti, insan mı, hayvan mı? bambambam, bırak hayvanı, dünya mı, evren mi? bambambam, bırak dünyayı',
-        authorId: '67b495fac2acffcd5c2d92a5'
+      messages: {
+        createMany: {
+          data: [
+            {
+              authorId: '67b9c881ce6d899fa9563f92',
+              content: 'bayri naber',
+              sentAt: new Date(date.getFullYear(), date.getMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds())
+            },
+            {
+              authorId: '67b9c881ce6d899fa9563f92',
+              content: 'bayri yaz artık',
+              sentAt: new Date(date.getFullYear(), date.getMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds())
+            },
+            {
+              authorId: '67b9d6f54b01abe30275517f',
+              content: 'bitiririm lan seni',
+              sentAt: new Date(date.getFullYear(), date.getMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds())
+            },
+            {
+              authorId: '67b9c881ce6d899fa9563f92',
+              content: 'morbidlige devam mı',
+              sentAt: new Date(date.getFullYear(), date.getMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds())
+            },
+            {
+              authorId: '67b9d6f54b01abe30275517f',
+              content: 'eşşek üskğdarı geçti ona göre ayafıonı deng al',
+              sentAt: new Date(date.getFullYear(), date.getMonth() + 1, date.getUTCDate(), date.getUTCHours(), date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds())
+            },
+            
+          ] 
+        }
+      },
+      users: {
+        connect: [
+          {
+            id: '67b9d6f54b01abe30275517f'
+          },
+          {
+            id: '67b9c881ce6d899fa9563f92'
+          }
+        ]
       }
-    ]
+    }
   })
-  console.log('Created messages');
+  console.log('created dm')
   await db.$disconnect();
-})();
+})()

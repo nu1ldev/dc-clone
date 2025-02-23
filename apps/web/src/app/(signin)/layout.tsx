@@ -22,8 +22,8 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <div className='w-full h-full flex items-center justify-center bg-black pt-20 pb-20'>
-      <div id="signincard" className='rounded-lg w-64 h-fit border-2 border-white/80'>
+    <div className='w-full h-full flex items-center justify-center bg-black'>
+      <div id="signincard" className='rounded-lg w-64 h-fit border-2 border-white/80  pt-20 pb-20'>
         {children}
       </div>
     </div>

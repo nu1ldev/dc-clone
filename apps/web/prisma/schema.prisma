@@ -13,6 +13,12 @@ enum FriendRequestState {
   DECLINED
 }
 
+enum ChannelType {
+  TEXT
+  RULES
+  ANNOUNCEMENTS
+}
+
 model User {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   clerk_id String @unique
@@ -44,12 +50,15 @@ model User {
 model Server {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   name String
-  createdAt DateTime
   participantIds String[] @db.ObjectId
   participants User[] @relation("Participants", fields: [participantIds], references: [id])
-  ownerId String @db.ObjectId
+  ownerId String @db.ObjectId @unique
   owner User @relation(fields: [ownerId], references: [id])
   channels Channel[] @relation("Channels")
+  defaultChannelId String? @db.ObjectId @unique
+  defaultChannel Channel? @relation("DefaultChannel", fields: [defaultChannelId], references: [id])
+  rulesChannelId String? @db.ObjectId @unique
+  rulesChannel Channel? @relation("RulesChannel", fields: [rulesChannelId], references: [id])
   imageUrl String?
   bannerUrl String?
   bannedUserIds String[] @db.ObjectId
@@ -59,11 +68,14 @@ model Server {
 model Channel {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   name String
+  type ChannelType
   messages Message[]
   eligibleUserIds String[] @db.ObjectId
   eligibleUsers User[] @relation(fields: [eligibleUserIds], references: [id])
-  serverId String @db.ObjectId
-  server Server @relation("Channels", fields: [serverId], references: [id])
+  serverId String @db.ObjectId @unique
+  server Server @relation("Channels", fields: [serverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  defaultChannelOf Server? @relation("DefaultChannel")
+  rulesChannelOf Server? @relation("RulesChannel")
 }
 
 model Dm {
@@ -76,8 +88,7 @@ model Dm {
 
 model Message {
   id String @id @map("_id") @default(auto()) @db.ObjectId
-  content String?
-  embeds String[]
+  content String
   channelId String? @db.ObjectId
   channel Channel? @relation(fields: [channelId], references: [id])
   dmId String? @db.ObjectId
@@ -90,8 +101,8 @@ model Message {
 model FriendRequests {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   sentById String @db.ObjectId
-  sentBy User @relation("SentFriendRequests", fields: [sentById], references: [id])
+  sentBy User @relation("SentFriendRequests", fields: [sentById], references: [id], onDelete: Cascade)
   sentToId String @db.ObjectId
-  sentTo User @relation("ReceivedFriendRequests", fields: [sentToId], references: [id])
+  sentTo User @relation("ReceivedFriendRequests", fields: [sentToId], references: [id], onDelete: Cascade)
   state FriendRequestState
 }

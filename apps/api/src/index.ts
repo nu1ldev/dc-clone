@@ -1,11 +1,13 @@
 import { db } from '../../web/src/db'
 import { Elysia, t } from 'elysia'
 import { clerkPlugin, WebhookEvent } from 'elysia-clerk'
-import { randomId } from 'elysia/dist/utils'
-import { Webhook } from 'svix'
+import { messageInRaw, Webhook } from 'svix'
+import { randomUUID } from 'crypto'
+import { cors } from '@elysiajs/cors'
 
 const app = new Elysia()
   .use(clerkPlugin())
+  .use(cors())
   .get('/', () => 'bambambam')
   .post('/webhooks', async ({ request, body }) => {
     const SIGNING_SECRET = process.env.SIGNING_SECRET
@@ -22,7 +24,6 @@ const app = new Elysia()
     // Get headers and body
     const headers = request.headers
     const payload = body
-    console.log('payload: ', JSON.stringify(body))
 
     // Get Svix headers for verification
     const svix_id = headers.get('svix-id')
@@ -51,26 +52,46 @@ const app = new Elysia()
     }
 
     const eventType = evt.type
+    const date = new Date()
     if (eventType === 'user.created') {
       const user = await db.user.create({
         data: {
           email: evt.data.email_addresses[0].email_address,
-          username: evt.data.username ?? evt.data.email_addresses[0].email_address.split('@')[0],
-          token: randomId(),
+          username:
+            evt.data.username ??
+            evt.data.email_addresses[0].email_address.split('@')[0],
+          token: randomUUID({ disableEntropyCache: true }),
           imageUrl: evt.data.image_url,
           clerk_id: evt.data.id,
-          createdAt: evt.data.created_at.toString()
+          createdAt: new Date(
+            2025,
+            date.getMonth(),
+            date.getUTCDate()
+          ).toISOString()
         }
       })
       return new Response(JSON.stringify(user), { status: 200 })
-    }
-    else if (eventType === 'user.deleted') {
+    } else if (eventType === 'user.deleted') {
       await db.user.delete({
         where: {
           clerk_id: evt.data.id
         }
       })
       return new Response('User deleted', { status: 200 })
+    } else if (eventType === 'user.updated') {
+      await db.user.update({
+        where: {
+          clerk_id: evt.data.id
+        },
+        data: {
+          imageUrl: evt.data.image_url,
+          username:
+            evt.data.username ??
+            evt.data.email_addresses[0].email_address.split('@')[0],
+          email: evt.data.email_addresses[0].email_address
+        }
+      })
+      return new Response('Everything is ok bambambam', { status: 200 })
     }
     return new Response('Error: Unknown event type', { status: 400 })
   })
@@ -103,6 +124,7 @@ const app = new Elysia()
         .servers()
       return JSON.stringify(userServers)
     }
+    return new Response('id veya serverid gönderilmedi', { status: 400 })
   })
   .post('/get-channel', async ({ request }) => {
     const { id, serverId } = await request.json()
@@ -123,7 +145,28 @@ const app = new Elysia()
         .channels()
       return JSON.stringify(serverChannels)
     }
-    return new Error('bambambam /get-channels sıçtı')
+    return new Response('channelid ve serverid ikisi de yok', { status: 400 })
+  })
+  .post('/get-dm', async ({ request }) => {
+    const { id, userId } = await request.json()
+    if (!id && !userId) return new Response('/get-dm: id yok', { status: 400 })
+    if (!id && userId) {
+      const dms = await db.user.findUnique({
+        where: {
+          id: userId
+        }
+      }).directMessages()
+      return JSON.stringify(dms)
+    }
+    if (!userId && id) {
+      const dm = await db.dm.findUnique({
+        where: {
+          id
+        }
+      })
+      return JSON.stringify(dm)
+    }
+    return new Response('userid veya dmid yok', { status: 400 })
   })
   .listen(9999)
 

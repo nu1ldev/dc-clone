@@ -16,11 +16,10 @@ export default function Home() {
       return req.json()
     }
   })
-  // const friendsList = [].concat(user.data.friends).concat(user.data.friendsOf)
   return (
     <div className='w-full h-full'>
       <div className='flex flex-col gap-y-0 w-10/12 items-center justify-start'>
-        {JSON.stringify([])}
+        {user.data && JSON.stringify([].concat(user.data.friends).concat(user.data.friendsOf))}
       </div>
       <div className='flex flex-col gap-y-0 w-10/12'>
         bambambam

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { ClerkProvider } from '@clerk/nextjs'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Atkinson_Hyperlegible } from 'next/font/google'
 import Providers from './providers'
 import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/db'
@@ -13,6 +13,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+})
+
+const atkinson = Atkinson_Hyperlegible({
+  variable: '--font-atkinson',
+  subsets: ['latin'],
+  weight: '400'
 })
 
 export const metadata: Metadata = {
@@ -32,7 +38,7 @@ export default async function RootLayout({
         className='w-full h-full'
       >
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased w-full h-full`}
+          className={`${atkinson.className} antialiased w-full h-full`}
         >
           <Providers>
             {children}
