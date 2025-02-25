@@ -3,6 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import Server from './Server'
 import { redirect } from 'next/navigation'
+import type { Channel, Server as ServerType } from '@prisma/client'
+import Link from 'next/link'
 
 const Servers = ({
   user
@@ -39,9 +41,9 @@ const Servers = ({
       id='sidebar-servers'
       className='bg-[#1e1f22] w-[100px] p-2 h-full flex flex-col gap-y-4 items-center'
     >
-      <div
+      <Link
         id='home'
-        onClick={() => redirect('/channels')}
+        href={'/channels?pt=home'}
         className='rounded-xl bg-[#2b2d31] hover:bg-indigo-500 transition cursor-pointer p-2 w-12 h-12 flex flex-row items-center justify-center group/home'
       >
         <svg
@@ -64,7 +66,7 @@ const Servers = ({
         >
           Direct Messages
         </div>
-      </div>
+      </Link>
       <div className='bg-primary h-1 w-10 rounded' />
       <div
         id='servers'
@@ -72,22 +74,23 @@ const Servers = ({
       >
         {!isLoading ? (
           data.map(
-            (server: { name: string; imageUrl?: string; id: string }) => (
+            (server: ServerType) => (
               <Server
                 server={server}
+                defaultChannelId={server.defaultChannelId!}
                 key={server.name}
               />
             )
           )
         ) : (
-          <div className='flex flex-col gap-y-4 items-center justify-center'>
+          <div className='flex flex-col gap-y-3 items-center justify-center'>
             {(() => {
               const loadingServers = []
-              for (let index = 0; index < 10; index++) {
+              for (let index = 0; index < 12; index++) {
                 loadingServers.push(
                   <div
                     key={index}
-                    className='animate-pulse rounded-full w-12 h-12 bg-[#2b2d31]'
+                    className='animate-pulse rounded-full w-12 h-12 bg-primary'
                   />
                 )
               }

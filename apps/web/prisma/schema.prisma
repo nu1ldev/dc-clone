@@ -84,12 +84,13 @@ model Dm {
   users User[] @relation(name: "DmToUser", fields: [userIds], references: [id])
   messages Message[]
   imageUrl String?
+  name String?
 }
 
 model Message {
   id String @id @map("_id") @default(auto()) @db.ObjectId
   content String
-  channelId String? @db.ObjectId
+  channelId String? @db.ObjectId @unique
   channel Channel? @relation(fields: [channelId], references: [id])
   dmId String? @db.ObjectId
   dm Dm? @relation(fields: [dmId], references: [id])

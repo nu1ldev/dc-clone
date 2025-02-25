@@ -5,7 +5,6 @@ import { currentUser } from '@clerk/nextjs/server'
 import { db } from '@/db'
 import Servers from '@/components/Servers'
 import SidebarTopAndMain from '@/components/SidebarAndMain'
-import CurrentChannelContext from './context'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,13 +34,11 @@ export default async function RootLayout({
   })
   // #1d1e21
   return (
-    <CurrentChannelContext>
-      <div className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Servers user={dbUser!} />
-        <SidebarTopAndMain>
-          {children}
-        </SidebarTopAndMain>
-      </div>
-    </CurrentChannelContext>
+    <div
+      className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+      <Servers user={dbUser!} />
+      <SidebarTopAndMain>{children}</SidebarTopAndMain>
+    </div>
   )
 }

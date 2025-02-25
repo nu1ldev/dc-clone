@@ -13,17 +13,13 @@ export default function Home() {
       if (!req.ok) {
         throw new Error('Failed to fetch user')
       }
-      return req.json()
+      return await req.json()
     }
   })
   return (
-    <div className='w-full h-full'>
+    <div className='w-full h-full flex flex-row'>
       <div className='flex flex-col gap-y-0 w-10/12 items-center justify-start'>
         {user.data && JSON.stringify([].concat(user.data.friends).concat(user.data.friendsOf))}
-      </div>
-      <div className='flex flex-col gap-y-0 w-10/12'>
-        bambambam
-        <div>wdnjedw</div>
       </div>
     </div>
   );

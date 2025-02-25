@@ -1,13 +1,5 @@
 {
   "name": "dc-clone-ama-turborepoyla-yeter-artik",
-  "private": true,
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
-  },
   "devDependencies": {
     "prettier": "^3.5.0",
     "turbo": "^2.4.2",
@@ -17,13 +9,21 @@
     "node": ">=18"
   },
   "packageManager": "bun@1.1.15",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "check-types": "turbo run check-types"
+  },
   "trustedDependencies": [
     "@clerk/shared",
     "core-js-pure",
     "discord-clone"
+  ],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
   ]
 }

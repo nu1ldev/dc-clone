@@ -1,19 +1,18 @@
 import React from 'react'
 import { db } from '@/db'
 import Link from 'next/link'
+import type { Channel, Server } from '@prisma/client'
 
 const Server = ({
-  server
+  server,
+  defaultChannelId
 }: {
-  server: {
-    name: string
-    imageUrl?: string
-    id: string
-  }
+  server: Server,
+  defaultChannelId: string
 }) => {
   return (
     <Link
-      href={`/channels/${server.id}`}
+      href={`/channels/${server.id}/${defaultChannelId}?pt=server`}
       className='rounded-full hover:rounded-3xl transition-all bg-[#313338] w-12 h-12 flex items-center cursor-pointer'
     >
       {server.imageUrl ? (

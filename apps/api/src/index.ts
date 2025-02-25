@@ -107,14 +107,23 @@ const app = new Elysia()
   })
   .post('/get-server', async ({ request }) => {
     const { id, userId } = await request.json()
+    // serverid ile tekli server alma
     if (!userId && id) {
       const server = await db.server.findUnique({
         where: {
           id
         }
       })
-      return JSON.stringify(server)
+      const defaultChannel = await db.server
+        .findUnique({
+          where: {
+            id
+          }
+        })
+        .defaultChannel()
+      return JSON.stringify({ server, defaultChannel })
     } else if (userId && !id) {
+      // userid ile çoklu server
       const userServers = await db.user
         .findUnique({
           where: {
@@ -149,15 +158,22 @@ const app = new Elysia()
   })
   .post('/get-dm', async ({ request }) => {
     const { id, userId } = await request.json()
+
     if (!id && !userId) return new Response('/get-dm: id yok', { status: 400 })
+
+    // userid ile çoklu dm
     if (!id && userId) {
-      const dms = await db.user.findUnique({
-        where: {
-          id: userId
-        }
-      }).directMessages()
+      const dms = await db.user
+        .findUnique({
+          where: {
+            id: userId
+          }
+        })
+        .directMessages()
       return JSON.stringify(dms)
     }
+
+    // id ile tek dm
     if (!userId && id) {
       const dm = await db.dm.findUnique({
         where: {
@@ -166,6 +182,7 @@ const app = new Elysia()
       })
       return JSON.stringify(dm)
     }
+
     return new Response('userid veya dmid yok', { status: 400 })
   })
   .listen(9999)
