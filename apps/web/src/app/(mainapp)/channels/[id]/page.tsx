@@ -1,4 +1,4 @@
-import { db } from '@/db'
+import { db } from '../../../../appwrite'
 import { redirect } from 'next/navigation'
 import Messageinput from './[channelId]/messageinput'
 

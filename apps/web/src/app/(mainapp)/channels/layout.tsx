@@ -1,10 +1,9 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import '../../globals.css'
-import { currentUser } from '@clerk/nextjs/server'
-import { db } from '@/db'
 import Servers from '@/components/Servers'
 import SidebarTopAndMain from '@/components/SidebarAndMain'
+import { account,  } from '../../../appwrite'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,18 +25,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = await currentUser()
-  const dbUser = await db.user.findUnique({
-    where: {
-      clerk_id: user!.id
-    }
-  })
+  const user = account.get();
+  
   // #1d1e21
   return (
     <div
       className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
-      <Servers user={dbUser!} />
+      <Servers user={user} />
       <SidebarTopAndMain>{children}</SidebarTopAndMain>
     </div>
   )

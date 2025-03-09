@@ -3,24 +3,9 @@
 import { useQuery } from '@tanstack/react-query'
 import Server from './Server'
 import { redirect } from 'next/navigation'
-import type { Channel, Server as ServerType } from '@prisma/client'
 import Link from 'next/link'
 
-const Servers = ({
-  user
-}: {
-  user: {
-    id: string
-    clerk_id: string
-    token: string
-    username: string
-    email: string
-    password?: string | null
-    imageUrl: string | null
-    serverIds?: string[]
-    eligibleChannelIds?: string[]
-  }
-}) => {
+const Servers = ({ user }: { user: any }) => {
   const { data, isError, isLoading } = useQuery({
     queryKey: ['get-servers'],
     queryFn: async () => {

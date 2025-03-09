@@ -1,13 +1,11 @@
 import React from 'react'
-import { db } from '@/db'
 import Link from 'next/link'
-import type { Channel, Server } from '@prisma/client'
 
 const Server = ({
   server,
   defaultChannelId
 }: {
-  server: Server,
+  server: any,
   defaultChannelId: string
 }) => {
   return (

@@ -1,4 +1,3 @@
-import { db } from "@/db"
 import Messageinput from "./messageinput"
 
 const ChannelPage = async ({ params }: { params: Promise<{ channelId: string }> }) => {

@@ -14,6 +14,9 @@ export default {
         primary: "#2b2d31",
         secondary: "#313338",
       },
+      fontFamily: {
+        tttrailers: ""
+      }
     },
   },
   plugins: [],

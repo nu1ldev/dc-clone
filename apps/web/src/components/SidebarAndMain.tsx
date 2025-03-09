@@ -1,20 +1,21 @@
 'use client'
 
-import { UserButton, useUser } from '@clerk/nextjs'
-import type { Channel, Dm } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
-import { usePathname, useSearchParams } from 'next/navigation'
+import { redirect, usePathname, useSearchParams } from 'next/navigation'
+import { account } from '../appwrite'
 
 const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
-  const user = useUser()
+  const user = account.get()
+
   const searchParams = useSearchParams()
+  const pathName = usePathname()
 
   const pageType = searchParams.get('pt')
 
   // sayfa değişince statei ayarla
-  const pathName = usePathname()
   const pathId = pathName.replace('/channels', '')
+
   // queryler
   const channelAndServer = useQuery({
     // server ve o serverın channelları
@@ -72,13 +73,19 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
         method: 'POST',
         body: JSON.stringify({ userId: dbUser.data.id })
       })
-      return await dmsReq.json()
-    }
+      const returnValue = await dmsReq.json()
+      console.log(returnValue)
+      return returnValue
+    },
+    enabled: !!dbUser.data
   })
   return (
     <div className='flex flex-col w-full h-full'>
       {/* Top */}
-      <div id='top' className='w-full h-14 bg-gray-700 flex flex-row'>
+      <div
+        id='top'
+        className='w-full h-14 bg-gray-700 flex flex-row'
+      >
         <div
           id='section-1'
           className='flex flex-row items-center p-3 w-[300px] bg-primary h-full shadow-sm shadow-[#1d1e21] relative'
@@ -104,20 +111,21 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                             clipRule='evenodd'
                           />
                         </svg>
-                        <span>{channelAndServer.data?.currentServer.server.name}</span>
+                        <span>
+                          {channelAndServer.data?.currentServer.server.name}
+                        </span>
                       </div>
                     ) : (
                       <div className='flex flex-row gap-x-2 w-full h-full items-center'>
-                        <div className='animate-pulse bg-primary w-6 h-6 rounded-full'/>
-                        <div className='animate-pulse bg-primary w-full h-3 rounded-full'/>
+                        <div className='animate-pulse bg-primary w-6 h-6 rounded-full' />
+                        <div className='animate-pulse bg-primary w-full h-3 rounded-full' />
                       </div>
-                      
                     )}
                   </>
                 )
               case 'home':
                 return (
-                  <div className='w-full rounded bg-black/30 h-full cursor-pointer flex items-center justify-start py-1 px-2 text-white/70'>
+                  <div className='w-full rounded bg-black/30 h-full cursor-pointer flex items-center justify-start py-1 px-2 text-white/70 text-sm'>
                     Find or start a conversation
                   </div>
                 )
@@ -132,17 +140,36 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
         </div>
         <div
           id='section-2'
-          className='flex flex-row items-center gap-x-[6px] p-2 w-full bg-secondary h-full relative shadow-sm shadow-[#1d1e21] font-semibold italic'
+          className={`flex flex-row items-center gap-x-[6px] p-4 w-full bg-secondary h-full relative shadow-sm shadow-[#1d1e21] font-semibold`}
         >
           {(() => {
             switch (pageType) {
               case null:
-                return <div>sıçış</div>
+                return <div className='h-full items-center flex'>sıçış</div>
               case 'home':
-                return <div></div>
+                return (
+                  <div className='h-full items-center flex flex-row gap-x-[6px]'>
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      aria-hidden='true'
+                      className='fill-white opacity-50 size-6'
+                      viewBox='0 0 24 24'
+                    >
+                      <path
+                        fill='currentColor'
+                        d='M13 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8'
+                      ></path>
+                      <path
+                        fill='currentColor'
+                        d='M3 5v-.75C3 3.56 3.56 3 4.25 3s1.24.56 1.33 1.25C6.12 8.65 9.46 12 13 12h1a8 8 0 0 1 8 8 2 2 0 0 1-2 2 .21.21 0 0 1-.2-.15 7.7 7.7 0 0 0-1.32-2.3c-.15-.2-.42-.06-.39.17l.25 2c.02.15-.1.28-.25.28H9a2 2 0 0 1-2-2v-2.22c0-1.57-.67-3.05-1.53-4.37A15.85 15.85 0 0 1 3 5'
+                      ></path>
+                    </svg>
+                    <span className='text-white/75'>Friends</span>
+                  </div>
+                )
               case 'server':
                 return (
-                  <>
+                  <div className='h-full items-center flex flex-row gap-x-[6px]'>
                     <svg
                       xmlns='http://www.w3.org/2000/svg'
                       width='24'
@@ -160,10 +187,14 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                       />
                     </svg>
                     <span>{channelAndServer.data?.serverChannels[0].name}</span>
-                  </>
+                  </div>
                 )
               case 'dm':
-                return <div className='bg-red-400 w-full h-full'></div>
+                return (
+                  <div className='h-full items-center flex'>
+                    {dm.data.name ?? 'test'}
+                  </div>
+                  )
             }
           })()}
         </div>
@@ -183,7 +214,13 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                 return (
                   <div className='flex flex-col gap-y-0.5'>
                     {dms.isLoading ? (
-                      <div className='animate-pulse px-3 py-2 flex flex-row gap-x-2 bg-[#2b2d31] rounded-lg'></div>
+                      <>
+                        <div className='px-3 py-2 flex flex-row gap-x-2'>
+                          <div className=''>
+                            
+                          </div>
+                        </div>
+                      </>
                     ) : (
                       <>
                         {dms.data &&
@@ -194,6 +231,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                               className='px-3 py-2 flex flex-row gap-x-2 bg-inherit'
                             >
                               {dm.imageUrl && <img src={dm.imageUrl} />}
+                              <span>{dm.name ?? 'reis123'}</span>
                             </Link>
                           ))}
                       </>
@@ -263,7 +301,6 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
             })()}
           </div>
           <div className='w-full h-[6%] bg-[#232428] flex items-center p-3 relative flex-row gap-x-2'>
-            <UserButton />
             <div className='flex flex-col gap-y-0'>
               <span className='text-slate-300'>{user.user?.username}</span>
               <span>tag</span>
