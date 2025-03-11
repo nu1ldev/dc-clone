@@ -2,12 +2,11 @@ import Messageinput from "./messageinput"
 
 const ChannelPage = async ({ params }: { params: Promise<{ channelId: string }> }) => {
   const { channelId } = await params
-  const messages = await db.message.findMany({
+  const messages = await db.channel.findUnique({
     where: {
-      channelId
-    },
-    take: 40
-  })
+      id: channelId
+    }
+  }).messages()
   const channel = await db.channel.findUnique({
     where: {
       id: channelId

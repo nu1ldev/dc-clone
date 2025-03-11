@@ -2,15 +2,22 @@ import React from 'react'
 import Link from 'next/link'
 
 const Server = ({
-  server,
-  defaultChannelId
+  server
 }: {
+<<<<<<< HEAD
   server: any,
   defaultChannelId: string
+=======
+  server: {
+    name: string
+    imageUrl?: string
+    id: string
+  }
+>>>>>>> parent of 6a61b5c (bişeyler deniyom)
 }) => {
   return (
     <Link
-      href={`/channels/${server.id}/${defaultChannelId}?pt=server`}
+      href={`/channels/${server.id}`}
       className='rounded-full hover:rounded-3xl transition-all bg-[#313338] w-12 h-12 flex items-center cursor-pointer'
     >
       {server.imageUrl ? (

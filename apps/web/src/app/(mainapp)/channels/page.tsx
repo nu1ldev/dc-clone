@@ -16,6 +16,7 @@ export default function Home() {
       if (!req.ok) {
         throw new Error('Failed to fetch user')
       }
+<<<<<<< HEAD
       return await req.json()
     },
     enabled: clerkUser.isLoaded
@@ -67,6 +68,20 @@ export default function Home() {
           </div>
         </>
       )}
+=======
+      return req.json()
+    }
+  })
+  return (
+    <div className='w-full h-full'>
+      <div className='flex flex-col gap-y-0 w-10/12 items-center justify-start'>
+        {user.data && JSON.stringify([].concat(user.data.friends).concat(user.data.friendsOf))}
+      </div>
+      <div className='flex flex-col gap-y-0 w-10/12'>
+        bambambam
+        <div>wdnjedw</div>
+      </div>
+>>>>>>> parent of 6a61b5c (bişeyler deniyom)
     </div>
   )
 }

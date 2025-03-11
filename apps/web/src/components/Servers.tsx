@@ -3,7 +3,10 @@
 import { useQuery } from '@tanstack/react-query'
 import Server from './Server'
 import { redirect } from 'next/navigation'
+<<<<<<< HEAD
 import Link from 'next/link'
+=======
+>>>>>>> parent of 6a61b5c (bişeyler deniyom)
 
 const Servers = ({ user }: { user: any }) => {
   const { data, isError, isLoading } = useQuery({
@@ -26,9 +29,9 @@ const Servers = ({ user }: { user: any }) => {
       id='sidebar-servers'
       className='bg-[#1e1f22] w-[100px] p-2 h-full flex flex-col gap-y-4 items-center'
     >
-      <Link
+      <div
         id='home'
-        href={'/channels?pt=home'}
+        onClick={() => redirect('/channels')}
         className='rounded-xl bg-[#2b2d31] hover:bg-indigo-500 transition cursor-pointer p-2 w-12 h-12 flex flex-row items-center justify-center group/home'
       >
         <svg
@@ -51,7 +54,7 @@ const Servers = ({ user }: { user: any }) => {
         >
           Direct Messages
         </div>
-      </Link>
+      </div>
       <div className='bg-primary h-1 w-10 rounded' />
       <div
         id='servers'
@@ -59,23 +62,22 @@ const Servers = ({ user }: { user: any }) => {
       >
         {!isLoading ? (
           data.map(
-            (server: ServerType) => (
+            (server: { name: string; imageUrl?: string; id: string }) => (
               <Server
                 server={server}
-                defaultChannelId={server.defaultChannelId!}
                 key={server.name}
               />
             )
           )
         ) : (
-          <div className='flex flex-col gap-y-3 items-center justify-center'>
+          <div className='flex flex-col gap-y-4 items-center justify-center'>
             {(() => {
               const loadingServers = []
-              for (let index = 0; index < 12; index++) {
+              for (let index = 0; index < 10; index++) {
                 loadingServers.push(
                   <div
                     key={index}
-                    className='animate-pulse rounded-full w-12 h-12 bg-primary'
+                    className='animate-pulse rounded-full w-12 h-12 bg-[#2b2d31]'
                   />
                 )
               }

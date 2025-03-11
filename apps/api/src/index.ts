@@ -24,6 +24,7 @@ const app = new Elysia()
     return JSON.stringify(user)
   })
   .post('/get-server', async ({ request }) => {
+<<<<<<< HEAD
     const { id, userId }: { id: string; userId: string } = await request.json()
     // serverid ile tekli server alma
     if (!userId && id) {
@@ -33,6 +34,24 @@ const app = new Elysia()
     } else if (userId && !id) {
       // userid ile çoklu server
       const userServers = await db.listDocuments('main', 'servers')
+=======
+    const { id, userId } = await request.json()
+    if (!userId && id) {
+      const server = await db.server.findUnique({
+        where: {
+          id
+        }
+      })
+      return JSON.stringify(server)
+    } else if (userId && !id) {
+      const userServers = await db.user
+        .findUnique({
+          where: {
+            clerk_id: userId
+          }
+        })
+        .servers()
+>>>>>>> dad2a12 (KAFAM ÇOK KARIŞTI NEYSE OLUYO BİŞEYLER)
       return JSON.stringify(userServers)
     }
     return new Response('id veya serverid gönderilmedi', { status: 400 })
@@ -60,22 +79,15 @@ const app = new Elysia()
   })
   .post('/get-dm', async ({ request }) => {
     const { id, userId } = await request.json()
-
     if (!id && !userId) return new Response('/get-dm: id yok', { status: 400 })
-
-    // userid ile çoklu dm
     if (!id && userId) {
-      const dms = await db.user
-        .findUnique({
-          where: {
-            id: userId
-          }
-        })
-        .directMessages()
+      const dms = await db.user.findUnique({
+        where: {
+          id: userId
+        }
+      }).directMessages()
       return JSON.stringify(dms)
     }
-
-    // id ile tek dm
     if (!userId && id) {
       const dm = await db.dm.findUnique({
         where: {
@@ -84,7 +96,6 @@ const app = new Elysia()
       })
       return JSON.stringify(dm)
     }
-
     return new Response('userid veya dmid yok', { status: 400 })
   })
   .post('/get-friends', async ({ request }) => {

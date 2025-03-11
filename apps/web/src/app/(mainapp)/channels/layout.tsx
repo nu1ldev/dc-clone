@@ -3,7 +3,11 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import '../../globals.css'
 import Servers from '@/components/Servers'
 import SidebarTopAndMain from '@/components/SidebarAndMain'
+<<<<<<< HEAD
 import { account,  } from '../../../appwrite'
+=======
+import CurrentChannelContext from './context'
+>>>>>>> parent of 6a61b5c (bişeyler deniyom)
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,11 +33,22 @@ export default async function RootLayout({
   
   // #1d1e21
   return (
+<<<<<<< HEAD
     <div
       className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <Servers user={user} />
       <SidebarTopAndMain>{children}</SidebarTopAndMain>
     </div>
+=======
+    <CurrentChannelContext>
+      <div className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Servers user={dbUser!} />
+        <SidebarTopAndMain>
+          {children}
+        </SidebarTopAndMain>
+      </div>
+    </CurrentChannelContext>
+>>>>>>> parent of 6a61b5c (bişeyler deniyom)
   )
 }
