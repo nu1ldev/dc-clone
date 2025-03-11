@@ -1,7 +1,7 @@
 import { Elysia, t } from 'elysia'
 import { cors } from '@elysiajs/cors'
 import { db } from '../../web/src/appwrite'
-import { databaseIdMain, dmsCollectionId, usersCollectionId, serversCollectionId, messagesCollectionId, channelsCollectionId, projectId } from '../../web/src/env'
+import { Query } from 'appwrite'
 
 const signingSecret = String(process.env.SIGNING_SECRET)
 
@@ -14,42 +14,25 @@ const app = new Elysia()
         'Error: Please add SIGNING_SECRET from Appwrite Dashboard to .env'
       )
     }
-    
   })
   .post('/get-user', async ({ request }) => {
     const { userId } = await request.json()
     if (!userId) throw new Error('sıçtın zateb mal mısın')
-    
-    const user = await db.listDocuments(databaseIdMain, usersCollectionId)
-    console.log(user.documents)
+
+    const user = await db.listDocuments('main', 'users')
+    console.log(user)
     return JSON.stringify(user)
   })
   .post('/get-server', async ({ request }) => {
-    const { id, userId } = await request.json()
+    const { id, userId }: { id: string; userId: string } = await request.json()
     // serverid ile tekli server alma
     if (!userId && id) {
-      const server = await db.server.findUnique({
-        where: {
-          id
-        }
-      })
-      const defaultChannel = await db.server
-        .findUnique({
-          where: {
-            id
-          }
-        })
-        .defaultChannel()
-      return JSON.stringify({ server, defaultChannel })
+      const server = await db.getDocument('main', 'servers', id)
+      console.log(server)
+      return JSON.stringify({ server })
     } else if (userId && !id) {
       // userid ile çoklu server
-      const userServers = await db.user
-        .findUnique({
-          where: {
-            clerk_id: userId
-          }
-        })
-        .servers()
+      const userServers = await db.listDocuments('main', 'servers')
       return JSON.stringify(userServers)
     }
     return new Response('id veya serverid gönderilmedi', { status: 400 })
@@ -114,11 +97,14 @@ const app = new Elysia()
       })
       return JSON.stringify(user)
     } else if (userId) {
-      const friends = await db.user.findUnique({
-        where: {
-          id: userId
-        }
-      }).friends() ?? []
+      const friends =
+        (await db.user
+          .findUnique({
+            where: {
+              id: userId
+            }
+          })
+          .friends()) ?? []
       return JSON.stringify([...friends])
     }
   })
