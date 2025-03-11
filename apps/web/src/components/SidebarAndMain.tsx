@@ -6,8 +6,14 @@ import { redirect, usePathname, useSearchParams } from 'next/navigation'
 import { account } from '../appwrite'
 
 const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
-  const user = account.get()
-
+  const user = account
+    .get()
+    .then(data => {
+      return { ...data, status: 'success' }
+    })
+    .catch(err => {
+      return { err, status: 'failed' }
+    })
   const searchParams = useSearchParams()
   const pathName = usePathname()
 
@@ -63,7 +69,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
       })
       return await userReq.json()
     },
-    enabled: user.isLoaded
+    enabled: user.email
   })
 
   const dms = useQuery({
@@ -194,7 +200,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                   <div className='h-full items-center flex'>
                     {dm.data.name ?? 'test'}
                   </div>
-                  )
+                )
             }
           })()}
         </div>
@@ -216,9 +222,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                     {dms.isLoading ? (
                       <>
                         <div className='px-3 py-2 flex flex-row gap-x-2'>
-                          <div className=''>
-                            
-                          </div>
+                          <div className=''></div>
                         </div>
                       </>
                     ) : (
