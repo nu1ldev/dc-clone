@@ -1,40 +1,27 @@
 import { Elysia, t } from 'elysia'
 import { cors } from '@elysiajs/cors'
-import { db } from '../../web/src/appwrite'
-import { Query } from 'appwrite'
+import { PrismaClient } from '@prisma/client'
 
-const signingSecret = String(process.env.SIGNING_SECRET)
+const db = new PrismaClient()
 
 const app = new Elysia()
   .use(cors())
   .get('/', () => 'bambambam')
   .post('/webhooks', async ({ request }) => {
-    if (!signingSecret) {
-      throw new Error(
-        'Error: Please add SIGNING_SECRET from Appwrite Dashboard to .env'
-      )
-    }
+    // suanlik bos
   })
   .post('/get-user', async ({ request }) => {
     const { userId } = await request.json()
     if (!userId) throw new Error('sıçtın zateb mal mısın')
 
-    const user = await db.listDocuments('main', 'users')
-    console.log(user)
+    const user = await db.user.findUnique({
+      where: {
+        id: userId
+      }
+    })
     return JSON.stringify(user)
   })
   .post('/get-server', async ({ request }) => {
-<<<<<<< HEAD
-    const { id, userId }: { id: string; userId: string } = await request.json()
-    // serverid ile tekli server alma
-    if (!userId && id) {
-      const server = await db.getDocument('main', 'servers', id)
-      console.log(server)
-      return JSON.stringify({ server })
-    } else if (userId && !id) {
-      // userid ile çoklu server
-      const userServers = await db.listDocuments('main', 'servers')
-=======
     const { id, userId } = await request.json()
     if (!userId && id) {
       const server = await db.server.findUnique({
@@ -51,7 +38,6 @@ const app = new Elysia()
           }
         })
         .servers()
->>>>>>> dad2a12 (KAFAM ÇOK KARIŞTI NEYSE OLUYO BİŞEYLER)
       return JSON.stringify(userServers)
     }
     return new Response('id veya serverid gönderilmedi', { status: 400 })
@@ -85,7 +71,7 @@ const app = new Elysia()
         where: {
           id: userId
         }
-      }).directMessages()
+      }).dms()
       return JSON.stringify(dms)
     }
     if (!userId && id) {

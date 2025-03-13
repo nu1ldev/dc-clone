@@ -3,11 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import '../../globals.css'
 import Servers from '@/components/Servers'
 import SidebarTopAndMain from '@/components/SidebarAndMain'
-<<<<<<< HEAD
-import { account,  } from '../../../appwrite'
-=======
 import CurrentChannelContext from './context'
->>>>>>> parent of 6a61b5c (bişeyler deniyom)
+import { useUser } from '@clerk/nextjs'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,18 +26,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = account.get();
+  const user = useUser();
+  
   
   // #1d1e21
   return (
-<<<<<<< HEAD
-    <div
-      className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
-    >
-      <Servers user={user} />
-      <SidebarTopAndMain>{children}</SidebarTopAndMain>
-    </div>
-=======
     <CurrentChannelContext>
       <div className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Servers user={dbUser!} />
@@ -49,6 +39,5 @@ export default async function RootLayout({
         </SidebarTopAndMain>
       </div>
     </CurrentChannelContext>
->>>>>>> parent of 6a61b5c (bişeyler deniyom)
   )
 }

@@ -1,19 +1,11 @@
 import React from 'react'
 import Link from 'next/link'
+import type { Server as ServerType } from '@prisma/client'
 
 const Server = ({
   server
 }: {
-<<<<<<< HEAD
-  server: any,
-  defaultChannelId: string
-=======
-  server: {
-    name: string
-    imageUrl?: string
-    id: string
-  }
->>>>>>> parent of 6a61b5c (bişeyler deniyom)
+  server: ServerType
 }) => {
   return (
     <Link

@@ -1,6 +1,5 @@
 'use client'
 
-import { account, ID, OAuthProvider } from '@/appwrite'
 import { useState } from 'react'
 
 const page = () => {

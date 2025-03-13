@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 enum FriendRequestState {
@@ -19,90 +20,80 @@ enum ChannelType {
   ANNOUNCEMENTS
 }
 
-model User {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
-  clerk_id String @unique
-  token String @unique
+model users {
+  id Int @id @default(autoincrement())
+  token String @unique @default(uuid())
   username String @unique
+  displayName String
   email String @unique
   password String?
   imageUrl String?
-  createdAt DateTime
-  serverIds String[] @db.ObjectId
-  servers Server[] @relation("Participants",fields: [serverIds], references: [id])
-  bannedServerIds String[] @db.ObjectId
-  bannedServers Server[] @relation("BannedUsers",fields: [bannedServerIds], references: [id])
-  eligibleChannelIds String[] @db.ObjectId
-  eligibleChannels Channel[] @relation(fields: [eligibleChannelIds], references: [id])
-  friendIds String[] @db.ObjectId
-  friends User[] @relation("Friends", fields: [friendIds], references: [id])
-  friendsOf User[] @relation("Friends", fields: [friendIds], references: [id])
-  directMessageIds String[] @db.ObjectId
-  directMessages Dm[] @relation(name: "DmToUser", fields: [directMessageIds], references: [id])
-  friendRequestsSent FriendRequests[] @relation("SentFriendRequests")
-  friendRequestsSentIds String[] @db.ObjectId
-  friendRequestsReceived FriendRequests[] @relation("ReceivedFriendRequests")
-  friendRequestsReceivedIds String[] @db.ObjectId
-  messages Message[]
-  ownedServers Server[]
+  createdAt DateTime @default(now())
+  servers servers[] @relation("Participants")
+  ownedServers servers[] @relation("Owner")
+  bannedServers servers[] @relation("BannedUsers")
+  eligibleChannels channels[] @relation("EligibleUsers")
+  dms dms[] @relation("DmUsers")
+  friends users[] @relation("Friends")
+  friendsOf users[] @relation("Friends")
+  messages messages[]
+  sentFriendRequests friend_requests[] @relation("SentFriendRequests")
+  receivedFriendRequests friend_requests[] @relation("ReceivedFriendRequests")
 }
 
-model Server {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
+model servers {
+  id Int @id @default(autoincrement())
   name String
-  participantIds String[] @db.ObjectId
-  participants User[] @relation("Participants", fields: [participantIds], references: [id])
-  ownerId String @db.ObjectId @unique
-  owner User @relation(fields: [ownerId], references: [id])
-  channels Channel[] @relation("Channels")
-  defaultChannelId String? @db.ObjectId @unique
-  defaultChannel Channel? @relation("DefaultChannel", fields: [defaultChannelId], references: [id])
-  rulesChannelId String? @db.ObjectId @unique
-  rulesChannel Channel? @relation("RulesChannel", fields: [rulesChannelId], references: [id])
+  participants users[] @relation("Participants")
+  ownerId Int
+  owner users @relation("Owner",fields: [ownerId], references: [id])
+  channels channels[] @relation("Channels")
+  defaultChannelId Int @unique
+  defaultChannel channels @relation("DefaultChannel", fields: [defaultChannelId], references: [id])
+  rulesChannelId Int? @unique
+  rulesChannel channels? @relation("RulesChannel", fields: [rulesChannelId], references: [id])
   imageUrl String?
   bannerUrl String?
-  bannedUserIds String[] @db.ObjectId
-  bannedUsers User[] @relation("BannedUsers", fields: [bannedUserIds], references: [id])
+  bannedUsers users[] @relation("BannedUsers")
 }
 
-model Channel {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
+model channels {
+  id Int @id @default(autoincrement())
   name String
   type ChannelType
-  messages Message[]
-  eligibleUserIds String[] @db.ObjectId
-  eligibleUsers User[] @relation(fields: [eligibleUserIds], references: [id])
-  serverId String @db.ObjectId @unique
-  server Server @relation("Channels", fields: [serverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  defaultChannelOf Server? @relation("DefaultChannel")
-  rulesChannelOf Server? @relation("RulesChannel")
+  messages messages[]
+  eligibleUsers users[] @relation("EligibleUsers")
+  serverId Int @unique
+  server servers @relation("Channels", fields: [serverId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  defaultChannelOf servers? @relation("DefaultChannel")
+  rulesChannelOf servers? @relation("RulesChannel")
 }
 
-model Dm {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
-  userIds String[] @db.ObjectId
-  users User[] @relation(name: "DmToUser", fields: [userIds], references: [id])
-  messages Message[]
+model dms {
+  id Int @id @default(autoincrement())
+  userIds Int[]
+  users users[] @relation("DmUsers")
+  messages messages[]
   imageUrl String?
 }
 
-model Message {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
+model messages {
+  id Int @id @default(autoincrement())
   content String
-  channelId String? @db.ObjectId
-  channel Channel? @relation(fields: [channelId], references: [id])
-  dmId String? @db.ObjectId
-  dm Dm? @relation(fields: [dmId], references: [id])
-  authorId String @db.ObjectId
-  author User @relation(fields: [authorId], references: [id])
+  channelId Int?
+  channel channels? @relation(fields: [channelId], references: [id])
+  dmId Int?
+  dm dms? @relation(fields: [dmId], references: [id])
+  authorId Int
+  author users @relation(fields: [authorId], references: [id])
   sentAt DateTime
 }
 
-model FriendRequests {
-  id String @id @map("_id") @default(auto()) @db.ObjectId
-  sentById String @db.ObjectId
-  sentBy User @relation("SentFriendRequests", fields: [sentById], references: [id], onDelete: Cascade)
-  sentToId String @db.ObjectId
-  sentTo User @relation("ReceivedFriendRequests", fields: [sentToId], references: [id], onDelete: Cascade)
+model friend_requests {
+  id Int @id @default(autoincrement())
+  sentById Int
+  sentBy users @relation("SentFriendRequests", fields: [sentById], references: [id], onDelete: Cascade)
+  sentToId Int
+  sentTo users @relation("ReceivedFriendRequests", fields: [sentToId], references: [id], onDelete: Cascade)
   state FriendRequestState
 }

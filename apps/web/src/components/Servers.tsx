@@ -3,10 +3,7 @@
 import { useQuery } from '@tanstack/react-query'
 import Server from './Server'
 import { redirect } from 'next/navigation'
-<<<<<<< HEAD
-import Link from 'next/link'
-=======
->>>>>>> parent of 6a61b5c (bişeyler deniyom)
+import type { Server as ServerType } from '@prisma/client'
 
 const Servers = ({ user }: { user: any }) => {
   const { data, isError, isLoading } = useQuery({
@@ -62,7 +59,7 @@ const Servers = ({ user }: { user: any }) => {
       >
         {!isLoading ? (
           data.map(
-            (server: { name: string; imageUrl?: string; id: string }) => (
+            (server: ServerType) => (
               <Server
                 server={server}
                 key={server.name}
