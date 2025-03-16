@@ -2,33 +2,35 @@
 
 import { useQuery } from '@tanstack/react-query'
 import Server from './Server'
-import { redirect } from 'next/navigation'
-import type { Server as ServerType } from '@prisma/client'
+import { Tables } from '@/database.types'
+import Link from 'next/link'
 
-const Servers = ({ user }: { user: any }) => {
+const Servers = ({ user }: { user: Tables<'users'> }) => {
   const { data, isError, isLoading } = useQuery({
     queryKey: ['get-servers'],
     queryFn: async () => {
       const r = await fetch('http://localhost:9999/get-server', {
         method: 'POST',
         headers: {
+          'Coming-From': '/SidebarAndMain.tsx',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          userId: user.clerk_id
+          token: user.token
         })
       })
       return await r.json()
     }
   })
+  console.log(data)
   return (
     <div
       id='sidebar-servers'
       className='bg-[#1e1f22] w-[100px] p-2 h-full flex flex-col gap-y-4 items-center'
     >
-      <div
+      <Link
         id='home'
-        onClick={() => redirect('/channels')}
+        href={'/channels/pt=home'}
         className='rounded-xl bg-[#2b2d31] hover:bg-indigo-500 transition cursor-pointer p-2 w-12 h-12 flex flex-row items-center justify-center group/home'
       >
         <svg
@@ -51,7 +53,7 @@ const Servers = ({ user }: { user: any }) => {
         >
           Direct Messages
         </div>
-      </div>
+      </Link>
       <div className='bg-primary h-1 w-10 rounded' />
       <div
         id='servers'
@@ -59,7 +61,7 @@ const Servers = ({ user }: { user: any }) => {
       >
         {!isLoading ? (
           data.map(
-            (server: ServerType) => (
+            (server: Tables<'servers'>) => (
               <Server
                 server={server}
                 key={server.name}
@@ -83,9 +85,9 @@ const Servers = ({ user }: { user: any }) => {
           </div>
         )}
       </div>
-      <div
+      <Link
         id='explore'
-        onClick={() => redirect('/explore')}
+        href={'/explore'}
         className='rounded-full hover:rounded-xl bg-[#2b2d31] hover:bg-indigo-500 text-white transition duration-100 ease-linear cursor-pointer p-2 w-12 h-12 flex items-center justify-center group/explore group'
       >
         <svg
@@ -101,7 +103,7 @@ const Servers = ({ user }: { user: any }) => {
         >
           Explore
         </div>
-      </div>
+      </Link>
     </div>
   )
 }

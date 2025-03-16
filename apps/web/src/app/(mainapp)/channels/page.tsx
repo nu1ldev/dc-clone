@@ -1,37 +1,52 @@
 'use client'
 
-import { useUser } from '@clerk/nextjs'
+import { Tables } from '@/database.types'
+import { createClient } from '@/utils/supabase/client'
+import { UserResponse } from '@supabase/supabase-js'
 import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
-  const clerkUser = useUser();
-  const user = useQuery({
+  const supabase = createClient()
+  
+  const [user, setUser] = useState<UserResponse | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(user => setUser(user))
+  }, [])
+
+  const dbUser = useQuery({
     queryKey: ['channels'],
     queryFn: async () => {
       const req = await fetch(`http://localhost:9999/get-user`, {
         method: 'POST',
         body: JSON.stringify({
-          clerk_id: clerkUser.user?.id
-        })
+          token: user?.data.user?.id ?? 'bambambam'
+        }),
+        headers: {
+          'Coming-From': '/channels/page.tsx'
+        }
       })
       if (!req.ok) {
         throw new Error('Failed to fetch user')
       }
       return await req.json()
     },
-    enabled: clerkUser.isLoaded
+    enabled: !!user?.data
   })
   const friends = useQuery({
     queryKey: ['get-friends'],
     queryFn: async () => {
       const req = await fetch('http://localhost:9999/get-friends', {
         method: 'POST',
-        body: JSON.stringify({ userId: user.data.id })
+        body: JSON.stringify({ token: user?.data.user?.id }),
+        headers: {
+          'Coming-From': '/channels/page.tsx'
+        }
       })
       return await req.json()
     },
-    enabled: !!user.data
+    enabled: !!user?.data
   })
   return (
     <div className='w-full h-full flex flex-col gap-y-3 items-center p-6'>
@@ -49,7 +64,7 @@ export default function Home() {
           </div>
           <div className='w-full h-[1px] bg-white/20 rounded-full'/>
           <div className='w-full'>
-            {friends.data?.map((friend: User) => (
+            {friends.data?.map((friend: Tables<'users'>) => (
               <Link
                 key={friend.id}
                 href={`/channels/${friend.id}?pt=dm`}

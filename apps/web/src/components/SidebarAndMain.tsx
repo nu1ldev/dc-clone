@@ -1,22 +1,27 @@
 'use client'
 
-import type { Channel, Dm } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
+import type { Tables } from '@/database.types'
+
 import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import { useEffect, useState } from 'react'
+import { UserResponse } from '@supabase/supabase-js'
 
 const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
   const supabase = createClient()
-
-  const user = supabase.auth.getUser()
   const searchParams = useSearchParams()
-
   const pageType = searchParams.get('pt')
-
-  // sayfa değişince statei ayarla
   const pathName = usePathname()
   const pathId = pathName.replace('/channels', '')
+  
+  // stateler
+  const [user, setUser] = useState<UserResponse | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(user => setUser(user))
+  }, [])
+
   // queryler
   const channelAndServer = useQuery({
     // server ve o serverın channelları
@@ -25,13 +30,19 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
       // 200 ok çözüldü
       const serverReq = await fetch('http://localhost:9999/get-server', {
         method: 'POST',
-        body: JSON.stringify({ id: pathId.split('/')[1] })
+        body: JSON.stringify({ id: pathId.split('/')[1] }),
+        headers: {
+          'Coming-From': '/SidebarAndMain.tsx'
+        }
       })
       const server = await serverReq.json() // server: { server: {...}, defaultChannel: {...} }
       // 200 ok çözüldü
       const channelsReq = await fetch('http://localhost:9999/get-channel', {
         method: 'POST',
-        body: JSON.stringify({ serverId: server.server.id })
+        body: JSON.stringify({ serverId: server.server.id }),
+        headers: {
+          'Coming-From': '/SidebarAndMain.tsx'
+        }
       })
       const channels = await channelsReq.json()
       return { currentServer: server, serverChannels: channels }
@@ -46,7 +57,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
         method: 'POST',
         body: JSON.stringify({ id: pathId.replace('/', '') }),
         headers: {
-          test: '7676'
+          'Coming-From': '/SidebarAndMain.tsx'
         }
       })
       return await req.json()
@@ -60,11 +71,14 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
     queryFn: async () => {
       const userReq = await fetch('http://localhost:9999/get-user', {
         method: 'POST',
-        body: JSON.stringify({ userId: (await user).data.user?.id })
+        body: JSON.stringify({ token: user ? user.data.user?.id : null }),
+        headers: {
+          'Coming-From': '/SidebarAndMain.tsx'
+        }
       })
       return await userReq.json()
     },
-    enabled: !!user
+    enabled: !!user?.data
   })
 
   const dms = useQuery({
@@ -72,7 +86,10 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
     queryFn: async () => {
       const dmsReq = await fetch('http://localhost:9999/get-dm', {
         method: 'POST',
-        body: JSON.stringify({ userId: dbUser.data.id })
+        body: JSON.stringify({ userId: dbUser.data.id }),
+        headers: {
+          'Coming-From': '/SidebarAndMain.tsx'
+        }
       })
       return await dmsReq.json()
     }
@@ -189,13 +206,13 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                     ) : (
                       <>
                         {dms.data &&
-                          dms.data.map((dm: Dm) => (
+                          dms.data.map((dm: Tables<'dms'>) => (
                             <Link
                               key={dm.id}
                               href={`/channels/${dm.id}?pt=dm`}
                               className='px-3 py-2 flex flex-row gap-x-2 bg-inherit'
                             >
-                              {dm.imageUrl && <img src={dm.imageUrl} />}
+                              {dm.image_url && <img src={dm.image_url} />}
                             </Link>
                           ))}
                       </>
@@ -207,10 +224,10 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                   <div className='flex flex-col gap-y-0.5 p-2'>
                     {channelAndServer.data &&
                       channelAndServer.data.serverChannels.map(
-                        (channel: Channel) => (
+                        (channel: Tables<'channels'>) => (
                           <Link
                             key={channel.id}
-                            href={`/channels/${channel.serverId}/${channel.id}?pt=server`}
+                            href={`/channels/${channel.server_id}/${channel.id}?pt=server`}
                             id='channel'
                             className='items-center px-3 py-2 flex flex-row gap-x-2 bg-inherit hover:bg-white/10 cursor-pointer rounded-lg'
                           >
@@ -267,7 +284,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
           <div className='w-full h-[6%] bg-[#232428] flex items-center p-3 relative flex-row gap-x-2'>
             {/* <UserButton /> */}
             <div className='flex flex-col gap-y-0'>
-              <span className='text-slate-300'>{user}</span>
+              <span className='text-slate-300'>{''}</span>
               <span>tag</span>
             </div>
           </div>

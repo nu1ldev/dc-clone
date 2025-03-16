@@ -28,9 +28,8 @@
   ],
   "dependencies": {
     "@ngrok/ngrok": "^1.4.1",
-    "@prisma/client": "^6.4.1",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.49.1",
-    "prisma": "^6.4.1"
+    "react-hot-toast": "^2.5.2"
   }
 }

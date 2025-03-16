@@ -3,8 +3,8 @@ import { Geist, Geist_Mono } from 'next/font/google'
 import '../../globals.css'
 import Servers from '@/components/Servers'
 import SidebarTopAndMain from '@/components/SidebarAndMain'
-import CurrentChannelContext from './context'
-import { useUser } from '@clerk/nextjs'
+import { createClient } from '@/utils/supabase/server'
+import { Tables } from '@/database.types'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -26,18 +26,22 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const user = useUser();
-  
-  
-  // #1d1e21
+  const supabase = await createClient()
+  const user = await supabase.auth.getUser()
+
+  const dbUser = user.data.user?.id
+    ? await supabase
+        .from('users')
+        .select('*')
+        .eq('token', user.data.user.id)
+        .single()
+    : null
   return (
-    <CurrentChannelContext>
-      <div className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Servers user={dbUser!} />
-        <SidebarTopAndMain>
-          {children}
-        </SidebarTopAndMain>
-      </div>
-    </CurrentChannelContext>
+    <div
+      className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
+    >
+      <Servers user={dbUser?.data as Tables<'users'>} />
+      <SidebarTopAndMain>{children}</SidebarTopAndMain>
+    </div>
   )
 }
