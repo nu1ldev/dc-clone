@@ -67,15 +67,16 @@ function generateCUID(): string {
 // Example usage
 // console.log(`\u001b[34m${generateCUID()}\u001b[0m`);
 
-(async () => {
-    const { error, data } = await supabase.from('servers').insert([
-        {
-            name: 'ankaralilar 06',
-            created_at: new Date().toISOString(),
-            owner_id: 3,
-            default_channel_id: 1,
-        }
-    ])
-    console.log('error: ', error)
-    console.log('data: ', data)
+const now = new Date().toISOString()
+
+;(async () => {
+    const res = await supabase.from('users').select('*').eq('email', 'ahmavsar1@gmail.com')
+    
+    res.data && res.data.map(console.log)
+    res.error && console.log(JSON.stringify(res.error))
+    ondeviceorientationabsolute
+    const jsonData = {
+
+    }
+    jsonData
 })()

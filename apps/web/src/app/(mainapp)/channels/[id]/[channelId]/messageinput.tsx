@@ -1,12 +1,42 @@
 'use client'
 
+import { Tables } from '@/database.types';
+import { createClient } from '@/utils/supabase/client';
 import { useState } from 'react'
 
-const Messageinput = ({ channelName }: { channelName: string }) => {
+const Messageinput = ({ channel }: { channel: Tables<'channels'> }) => {
   const [message, setMessage] = useState<string>('')
+  const [file, setFile] = useState<File | null>(null);
+
+  const supabase = createClient()
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleUpload = async () => {
+    if (file) {
+      console.log('Uploading file...');
+  
+      const formData = new FormData();
+      formData.append('file', file);
+  
+      try {
+        // You can write the URL of your server or any other endpoint used for file upload
+        const { data, error } = await supabase.storage
+          .from('embeds')
+          .upload('', file)
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
   return (
     <div className='flex flex-row items-center rounded-lg my-6 mx-4 p-2 relative gap-x-3 bg-white/10'>
-      <button className='flex items-center'>
+      <button 
+        className='flex items-center'
+      >
         <svg
           xmlns='http://www.w3.org/2000/svg'
           viewBox='0 0 24 24'
@@ -22,7 +52,7 @@ const Messageinput = ({ channelName }: { channelName: string }) => {
       </button>
       <input
         className='bg-transparent outline-none w-full'
-        placeholder={`Send a message to #${channelName}`}
+        placeholder={`Send a message to #${channel.name}`}
         onKeyUp={e => e.key === 'Enter' && console.log('sent message')}
         onChange={e => setMessage(e.currentTarget.value)}
         autoFocus

@@ -18,15 +18,7 @@ export default function Home() {
   const dbUser = useQuery({
     queryKey: ['channels'],
     queryFn: async () => {
-      const req = await fetch(`http://localhost:9999/get-user`, {
-        method: 'POST',
-        body: JSON.stringify({
-          token: user?.data.user?.id ?? 'bambambam'
-        }),
-        headers: {
-          'Coming-From': '/channels/page.tsx'
-        }
-      })
+      const req = await fetch(`http://localhost:9999/users/${user?.data.user?.id}`)
       if (!req.ok) {
         throw new Error('Failed to fetch user')
       }
@@ -72,11 +64,11 @@ export default function Home() {
               >
                 <img
                   className='rounded-full size-10'
-                  src={friend.imageUrl!}
+                  src={friend.image_url}
                   alt={`${friend.username}'s profile picture`}
                 />
                 <div className='flex flex-row gap-x-1'>
-                  <span className='font-medium'>{friend.displayName}</span>
+                  <span className='font-medium'>{friend.display_name}</span>
                   <span className='scale-0 group-hover:scale-100'>{friend.username}</span>
                 </div>
               </Link>

@@ -12,7 +12,7 @@ const Servers = ({ user }: { user: Tables<'users'> }) => {
       const r = await fetch('http://localhost:9999/get-server', {
         method: 'POST',
         headers: {
-          'Coming-From': '/SidebarAndMain.tsx',
+          'Coming-From': 'Servers.tsx',
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -20,18 +20,18 @@ const Servers = ({ user }: { user: Tables<'users'> }) => {
         })
       })
       return await r.json()
-    }
+    },
+    enabled: !!user
   })
-  console.log(data)
   return (
     <div
       id='sidebar-servers'
-      className='bg-[#1e1f22] w-[100px] p-2 h-full flex flex-col gap-y-4 items-center'
+      className='bg-[#1e1f22] w-[80px] p-2 h-full flex flex-col gap-y-4 items-center'
     >
       <Link
         id='home'
-        href={'/channels/pt=home'}
-        className='rounded-xl bg-[#2b2d31] hover:bg-indigo-500 transition cursor-pointer p-2 w-12 h-12 flex flex-row items-center justify-center group/home'
+        href={'/channels/?pt=home'}
+        className='rounded-xl bg-[#2b2d31] hover:bg-midnightGreen-500 transition cursor-pointer p-2 w-12 h-12 flex flex-row items-center justify-center group/home'
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'
@@ -56,18 +56,18 @@ const Servers = ({ user }: { user: Tables<'users'> }) => {
       </Link>
       <div className='bg-primary h-1 w-10 rounded' />
       <div
+        key={user.id}
         id='servers'
         className='flex flex-col items-center gap-y-3'
       >
         {!isLoading ? (
-          data.map(
-            (server: Tables<'servers'>) => (
-              <Server
-                server={server}
-                key={server.name}
-              />
-            )
-          )
+          data instanceof Array &&
+          data.map((server: Tables<'servers'>) => (
+            <Server
+              server={server}
+              key={server.id}
+            />
+          ))
         ) : (
           <div className='flex flex-col gap-y-4 items-center justify-center'>
             {(() => {
@@ -88,7 +88,7 @@ const Servers = ({ user }: { user: Tables<'users'> }) => {
       <Link
         id='explore'
         href={'/explore'}
-        className='rounded-full hover:rounded-xl bg-[#2b2d31] hover:bg-indigo-500 text-white transition duration-100 ease-linear cursor-pointer p-2 w-12 h-12 flex items-center justify-center group/explore group'
+        className='rounded-full hover:rounded-xl bg-[#2b2d31] hover:bg-midnightGreen-500 text-white transition duration-100 ease-linear cursor-pointer p-2 w-12 h-12 flex items-center justify-center group/explore group'
       >
         <svg
           xmlns='http://www.w3.org/2000/svg'

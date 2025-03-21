@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Atkinson_Hyperlegible } from 'next/font/google'
+import { Toaster } from 'react-hot-toast'
 import Providers from './providers'
+import './globals.css'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -35,6 +37,7 @@ export default async function RootLayout({
     >
       <body className={`${atkinson.className} antialiased w-full h-full`}>
         <Providers>{children}</Providers>
+        <Toaster />
       </body>
     </html>
   )

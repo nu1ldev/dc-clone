@@ -1,31 +1,35 @@
 'use client'
 
+import toast from 'react-hot-toast'
 import { useState } from 'react'
 import { signup } from './actions'
+import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
-const page = () => {
+const Page = () => {
   const [loading, setLoading] = useState(false)
   return (
     <div className='flex flex-col items-center gap-y-3 w-full h-full'>
-      <h1 className='text-3xl font-tttrailers'>Sign Up to Tjorss????</h1>
+      <h1 className='text-5xl font-gintonord font-bold text-center'>Sign Up to Discord Clone</h1>
       <div className='bg-black w-[80%] h-[1px] rounded-full' />
       <form className='flex flex-col gap-y-4'>
         <input
-          id='input-bambambam-email'
+          name='email'
           type='email'
           placeholder='Email'
-          className='rounded-lg border-2 p-3 border-black/60 outline-none focus:border-black'
+          className='rounded-lg border-2 p-3 border-white/60 outline-none focus:border-white bg-transparent'
         />
         <input
-          id='input-bambambam-password'
+          name='password'
           placeholder='Password'
           type='password'
-          className='rounded-lg border-2 p-3 border-black/60 outline-none focus:border-black'
+          className='rounded-lg border-2 p-3 border-white/60 outline-none focus:border-white bg-transparent'
         />
         <input
-          id='input-bambambam-username'
+          name='username'
+          type='text'
           placeholder='Username'
-          className='rounded-lg border-2 p-3 border-black/60 outline-none focus:border-black'
+          className='rounded-lg border-2 p-3 border-white/60 outline-none focus:border-white bg-transparent'
         />
         <button
           formAction={e => {
@@ -35,15 +39,20 @@ const page = () => {
             })
               .then(data => {
                 console.log(data)
+                toast.success('Signed up successfully')
+                setTimeout(() => {
+                  redirect('/channels?pt=home')
+                }, 1500)
               })
               .catch(err => {
                 console.log(err)
+                toast.error(err.message)
               })
               .finally(() => {
                 setLoading(false)
               })
           }}
-          className={`text-white rounded-lg p-3 disabled:cursor-not-allowed disabled:hover:bg-gray-400 bg-indigo-500 hover:bg-indigo-600 transition flex flex-row gap-x-2 items-center justify-center disabled:bg-gray-400`}
+          className={`text-white rounded-lg p-3 disabled:cursor-not-allowed disabled:hover:bg-gray-400 bg-midnightGreen-500 hover:bg-midnightGreen-600 transition flex flex-row gap-x-2 items-center justify-center disabled:bg-gray-400`}
           disabled={loading}
         >
           {loading && (
@@ -58,8 +67,19 @@ const page = () => {
           <span className={`${loading && 'opacity-60'}`}>Sign Up</span>
         </button>
       </form>
+      <div className='flex flex-row gap-x-2 w-2/3 h-fit items-center'>
+        <div className='h-[1px] bg-white/80 w-3/6' />
+        <span>or</span>
+        <div className='h-[1px] bg-white/80 w-3/6' />
+      </div>
+      <div className='flex flex-row gap-x-2 w-2/3 h-fit items-center justify-center'>
+        <span>Already have an account?</span>
+        <Link href='/signin' className='text-midnightGreen-500 hover:underline'>
+          Log in
+        </Link>
+      </div>
     </div>
   )
 }
 
-export default page
+export default Page

@@ -8,6 +8,7 @@ import { usePathname, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import { useEffect, useState } from 'react'
 import { UserResponse } from '@supabase/supabase-js'
+import Image from 'next/image'
 
 const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
   const supabase = createClient()
@@ -15,41 +16,38 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
   const pageType = searchParams.get('pt')
   const pathName = usePathname()
   const pathId = pathName.replace('/channels', '')
-  
-  // stateler
-  const [user, setUser] = useState<UserResponse | null>(null);
+
+  // console.log('pathId:', pathId)
+  // console.log('pageType:', pageType)
+
+  const [userMenu, setUserMenu] = useState<boolean>(false)
+  const [user, setUser] = useState<UserResponse | null>(null)
   useEffect(() => {
-    supabase.auth.getUser().then(user => setUser(user))
+    supabase.auth.getUser().then(user => {
+      setUser(user)
+    })
   }, [])
 
   // queryler
   const channelAndServer = useQuery({
     // server ve o serverın channelları
-    queryKey: ['get-channel'],
+    queryKey: ['get-channel-and-server'],
     queryFn: async () => {
       // 200 ok çözüldü
       const serverReq = await fetch('http://localhost:9999/get-server', {
         method: 'POST',
-        body: JSON.stringify({ id: pathId.split('/')[1] }),
+        body: JSON.stringify({ serverToken: pathId.split('/')[1] }),
         headers: {
-          'Coming-From': '/SidebarAndMain.tsx'
+          'Coming-From': 'SidebarAndMain.tsx'
         }
       })
-      const server = await serverReq.json() // server: { server: {...}, defaultChannel: {...} }
-      // 200 ok çözüldü
-      const channelsReq = await fetch('http://localhost:9999/get-channel', {
-        method: 'POST',
-        body: JSON.stringify({ serverId: server.server.id }),
-        headers: {
-          'Coming-From': '/SidebarAndMain.tsx'
-        }
-      })
-      const channels = await channelsReq.json()
-      return { currentServer: server, serverChannels: channels }
+      const server = await serverReq.json() // server: { server: {...}, defaultChannel: {...}, serverChannels: [...] }
+      return server
     },
     enabled: pageType === 'server'
   })
 
+  console.log(channelAndServer.data)
   const dm = useQuery({
     queryKey: ['top-get-dms'],
     queryFn: async () => {
@@ -57,7 +55,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
         method: 'POST',
         body: JSON.stringify({ id: pathId.replace('/', '') }),
         headers: {
-          'Coming-From': '/SidebarAndMain.tsx'
+          'Coming-From': '/SidebarAndMain.tsx 1'
         }
       })
       return await req.json()
@@ -69,35 +67,41 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
     // current user
     queryKey: ['get-db-user'],
     queryFn: async () => {
-      const userReq = await fetch('http://localhost:9999/get-user', {
-        method: 'POST',
-        body: JSON.stringify({ token: user ? user.data.user?.id : null }),
-        headers: {
-          'Coming-From': '/SidebarAndMain.tsx'
+      const userReq = await fetch(
+        `http://localhost:9999/db-users/${user?.data.user?.id}`,
+        {
+          method: 'GET',
+          headers: {
+            'Coming-From': '/SidebarAndMain.tsx'
+          }
         }
-      })
-      return await userReq.json()
+      )
+      const json = await userReq.json()
+      return json.data[0]
     },
-    enabled: !!user?.data
+    enabled: !!user?.data.user
   })
-
   const dms = useQuery({
     queryKey: ['user-dms'],
     queryFn: async () => {
       const dmsReq = await fetch('http://localhost:9999/get-dm', {
         method: 'POST',
-        body: JSON.stringify({ userId: dbUser.data.id }),
+        body: JSON.stringify({ token: dbUser.data.token }),
         headers: {
-          'Coming-From': '/SidebarAndMain.tsx'
+          'Coming-From': '/SidebarAndMain.tsx 2'
         }
       })
       return await dmsReq.json()
-    }
+    },
+    enabled: !!dbUser.data
   })
   return (
     <div className='flex flex-col w-full h-full'>
       {/* Top */}
-      <div id='top' className='w-full h-14 bg-gray-700 flex flex-row'>
+      <div
+        id='top'
+        className='w-full h-14 bg-gray-700 flex flex-row'
+      >
         <div
           id='section-1'
           className='flex flex-row items-center p-3 w-[300px] bg-primary h-full shadow-sm shadow-[#1d1e21] relative'
@@ -123,26 +127,27 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                             clipRule='evenodd'
                           />
                         </svg>
-                        <span>{channelAndServer.data?.currentServer.server.name}</span>
+                        <span>
+                          {channelAndServer.data?.server.name}
+                        </span>
                       </div>
                     ) : (
                       <div className='flex flex-row gap-x-2 w-full h-full items-center'>
-                        <div className='animate-pulse bg-primary w-6 h-6 rounded-full'/>
-                        <div className='animate-pulse bg-primary w-full h-3 rounded-full'/>
+                        <div className='animate-pulse bg-primary w-6 h-6 rounded-full' />
+                        <div className='animate-pulse bg-primary w-full h-3 rounded-full' />
                       </div>
-                      
                     )}
                   </>
                 )
               case 'home':
                 return (
-                  <div className='w-full rounded bg-black/30 h-full cursor-pointer flex items-center justify-start py-1 px-2 text-white/70'>
+                  <div className='w-full rounded bg-black/30 h-full cursor-pointer flex items-center justify-start py-1 px-2 text-white/70 line-clamp-none'>
                     Find or start a conversation
                   </div>
                 )
               case 'dm':
                 return (
-                  <div className='w-full rounded bg-black/30 h-full cursor-pointer flex items-center justify-start py-1 px-2 text-white/70'>
+                  <div className='w-full rounded bg-black/30 h-full cursor-pointer flex items-center justify-start py-1 px-2 text-white/70 line-clamp-none'>
                     Find or start a conversation
                   </div>
                 )
@@ -178,7 +183,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                         clipRule='evenodd'
                       />
                     </svg>
-                    <span>{channelAndServer.data?.serverChannels[0].name}</span>
+                    <span>{channelAndServer.data?.defaultChannel.name}</span>
                   </>
                 )
               case 'dm':
@@ -227,7 +232,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                         (channel: Tables<'channels'>) => (
                           <Link
                             key={channel.id}
-                            href={`/channels/${channel.server_id}/${channel.id}?pt=server`}
+                            href={`/channels/${channelAndServer.data.server.token}/${channel.id}?pt=server`}
                             id='channel'
                             className='items-center px-3 py-2 flex flex-row gap-x-2 bg-inherit hover:bg-white/10 cursor-pointer rounded-lg'
                           >
@@ -255,6 +260,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                                 case 'RULES':
                                   return (
                                     <svg
+                                      className='size-5 fill-white/40'
                                       xmlns='http://www.w3.org/2000/svg'
                                       viewBox='0 0 512 512'
                                     >
@@ -264,6 +270,7 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
                                 case 'ANNOUNCEMENTS':
                                   return (
                                     <svg
+                                      className='size-5 fill-white/40'
                                       xmlns='http://www.w3.org/2000/svg'
                                       viewBox='0 0 512 512'
                                     >
@@ -282,10 +289,30 @@ const SidebarTopAndMain = ({ children }: { children: React.ReactNode }) => {
             })()}
           </div>
           <div className='w-full h-[6%] bg-[#232428] flex items-center p-3 relative flex-row gap-x-2'>
-            {/* <UserButton /> */}
-            <div className='flex flex-col gap-y-0'>
-              <span className='text-slate-300'>{''}</span>
-              <span>tag</span>
+            <div
+              className='w-full h-full bg-[#232428] flex items-center p-1 hover:bg-white/40 flex-row gap-x-1 justify-start'
+              onClick={() => setUserMenu(prev => !prev)}
+            >
+              {dbUser.data && (
+                <Image
+                  className='rounded-3xl'
+                  width={36}
+                  height={36}
+                  src={dbUser.data.image_url}
+                  alt={user?.data.user?.user_metadata.username}
+                />
+              )}
+              <div className='flex flex-col justify-center'>
+                <span className='text-slate-300'>
+                  {user?.data.user?.user_metadata.username}
+                </span>
+                <span className='text-xs'>tag</span>
+              </div>
+            </div>
+            <div className='p-1 hover:bg-white/40 transition rounded-lg cursor-pointer'>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 13.5V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m12-3V3.75m0 9.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 3.75V16.5m-6-9V3.75m0 3.75a1.5 1.5 0 0 1 0 3m0-3a1.5 1.5 0 0 0 0 3m0 9.75V10.5" />
+              </svg>
             </div>
           </div>
         </div>

@@ -77,19 +77,19 @@ export type Database = {
       }
       _server_channels: {
         Row: {
-          channel_id: number | null
+          channel_id: number
           id: number
-          server_token: string | null
+          server_token: string
         }
         Insert: {
-          channel_id?: number | null
+          channel_id: number
           id?: number
-          server_token?: string | null
+          server_token?: string
         }
         Update: {
-          channel_id?: number | null
+          channel_id?: number
           id?: number
-          server_token?: string | null
+          server_token?: string
         }
         Relationships: [
           {
@@ -153,18 +153,18 @@ export type Database = {
       }
       _user_friends: {
         Row: {
-          a: string | null
-          b: string | null
+          a: string
+          b: string
           id: number
         }
         Insert: {
-          a?: string | null
-          b?: string | null
+          a: string
+          b: string
           id?: number
         }
         Update: {
-          a?: string | null
-          b?: string | null
+          a?: string
+          b?: string
           id?: number
         }
         Relationships: [
@@ -240,29 +240,23 @@ export type Database = {
       channels: {
         Row: {
           created_at: string
-          eligible_user_ids: number[]
           id: number
-          message_ids: number[] | null
-          name: string | null
-          server_id: number
+          name: string
+          server_id: number | null
           type: Database["public"]["Enums"]["channel_type"]
         }
         Insert: {
           created_at?: string
-          eligible_user_ids: number[]
           id?: number
-          message_ids?: number[] | null
-          name?: string | null
-          server_id: number
+          name: string
+          server_id?: number | null
           type?: Database["public"]["Enums"]["channel_type"]
         }
         Update: {
           created_at?: string
-          eligible_user_ids?: number[]
           id?: number
-          message_ids?: number[] | null
-          name?: string | null
-          server_id?: number
+          name?: string
+          server_id?: number | null
           type?: Database["public"]["Enums"]["channel_type"]
         }
         Relationships: [
@@ -461,7 +455,7 @@ export type Database = {
           display_name: string | null
           email: string
           id: number
-          image_url: string | null
+          image_url: string
           password: string | null
           token: string
           username: string | null
@@ -471,7 +465,7 @@ export type Database = {
           display_name?: string | null
           email: string
           id?: number
-          image_url?: string | null
+          image_url: string
           password?: string | null
           token?: string
           username?: string | null
@@ -481,7 +475,7 @@ export type Database = {
           display_name?: string | null
           email?: string
           id?: number
-          image_url?: string | null
+          image_url?: string
           password?: string | null
           token?: string
           username?: string | null
