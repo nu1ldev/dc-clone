@@ -10,20 +10,14 @@ const Navbar = () => {
   const [authState, setAuthState] = useState<{
     logged?: boolean
     user?: User | null
-    session?: Session | null
-  }>({ logged: false, user: null, session: null })
+  }>({ logged: false, user: null })
   const [scrolled, setScrolled] = useState<boolean>(false)
 
   // get user's auth status
   useEffect(() => {
     supabase.auth.getUser()
-      .then(user => {
-        setAuthState({ user: user.data.user, logged: true })
-      })
-
-    supabase.auth.getSession()
-      .then(session => {
-        setAuthState({ session: session.data.session, logged: true })
+      .then(({ data: { user } }) => {
+        setAuthState({ user: user, logged: true })
       })
   }, [])
 
@@ -57,7 +51,7 @@ const Navbar = () => {
             id='logged-in'
             className=' px-4 py-3 bg-midnightGreen-500 hover:bg-midnightGreen-600 rounded-2xl transition text-white'
           >
-            Continue to Discord
+            Go to channels
           </Link>
         ) : (
           <Link

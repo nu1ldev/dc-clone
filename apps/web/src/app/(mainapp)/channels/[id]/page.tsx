@@ -1,32 +1,40 @@
 import { redirect } from 'next/navigation'
-import MainContent from './maincontent'
-import { createClient } from '@/utils/supabase/client';
+import DmContent from './DmContent'
+import { createClient } from '@/utils/supabase/client'; // client gerekli
+
+const supabase = createClient()
 
 const page = async ({ params }: { params: Promise<{ id: string | number }> }) => {
-  const { id } = await params;
+  let { id } = await params;
+  
+  if (Number(id)) {
+    id = Number(id)
+  }
+  
   if (typeof id == 'string') {
-    console.log('string')
-    const supabase = createClient()
-    const server = await supabase
+    const { data: server } = await supabase
       .from('servers')
       .select('*')
       .eq('token', id)
       .limit(1)
       .single();
 
-      if (!server.data) redirect('/channels?pt=home')
+      if (!server) redirect('/channels?pt=home')
 
-    const { data: defaultChannel} = await supabase
+    const { data: defaultChannel } = await supabase
       .from('channels')
       .select('*')
-      .eq('id', server.data.default_channel_id)
+      .eq('id', server.default_channel_id)
       .limit(1)
       .single();
 
-    redirect(`/channels/${server.data.token}/${defaultChannel?.id}?pt=server`)
+    if (!defaultChannel) redirect('/channels?pt=home')
+    redirect(`/channels/${server.token}/${defaultChannel?.id}?pt=server`)
   }
   return (
-    <MainContent id={String(id)} />
+    <>
+      <DmContent id={String(id)} />
+    </>
   )
 }
 

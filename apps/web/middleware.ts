@@ -1,10 +1,10 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextRequest, NextResponse, userAgent } from 'next/server'
 import { updateSession } from '@/utils/supabase/middleware'
 
 export async function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname === '/channels') {
-    return NextResponse.redirect(new URL('/channels?pt=home', request.url))
-  }
+  const { device } = userAgent(request)
+  if (device.type === 'mobile')
+    return NextResponse.redirect('https://google.com')
   return await updateSession(request)
 }
 
@@ -17,6 +17,6 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
-  ],
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
+  ]
 }

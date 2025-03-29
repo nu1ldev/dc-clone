@@ -2,42 +2,23 @@
 
 import Navbar from '@/components/Navbar'
 import { createClient } from '@/utils/supabase/client'
-import { Session, User } from '@supabase/supabase-js'
-import Link from 'next/link'
+import { User } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
 
-const Card = ({
-  children,
-  className
-}: {
-  children: React.ReactNode
-  className?: string
-}) => {
-  return (
-    <div
-      className={`bg-white/5 backdrop-blur-[2px] rounded-md shadow-md p-4 ${className}`}
-    >
-      {children}
-    </div>
-  )
-}
+const supabase = createClient()
 
 const HomePage = () => {
-  const supabase = createClient()
-  const [authState, setAuthState] = useState<{ logged?: boolean, user?: User | null, session?: Session | null }>({ logged: false, user: null, session: null })
+  const [userState, setUserState] = useState<{ logged?: boolean, user?: User | null }>({ logged: false, user: null })
   const [scrolled, setScrolled] = useState<boolean>(false)
 
   // get user's auth status
   useEffect(() => {
-    supabase.auth.getUser()
-      .then(user => {
-        setAuthState({ user: user.data.user, logged: true })
+    supabase.auth
+      .getUser()
+      .then(({ data: { user } }) => {
+        setUserState({ logged: true, user })
       })
-
-    supabase.auth.getSession()
-      .then(session => {
-        setAuthState({ session: session.data.session, logged: true })
-      })
+      .catch(err => console.log('sıçış user'))
   }, [])
 
   // handle scroll event
@@ -55,8 +36,12 @@ const HomePage = () => {
   return (
     <div className='flex flex-col w-full h-full'>
       <Navbar />
-      <main className={`flex flex-col gap-y-40 -top-16 min-w-full min-h-full ${scrolled ? 'mt-16' : ''}`}>
-        <div className='p-12 text-4xl'>{JSON.stringify(authState, null, 1)}</div>
+      <main
+        className={`flex flex-col gap-y-40 -top-16 min-w-full min-h-full ${scrolled ? 'mt-16' : ''}`}
+      >
+        <div className='p-12 text-4xl'>
+          {JSON.stringify(userState, null, 1)}
+        </div>
         <div className='h-30 text-9xl'>
           <span>test</span>
         </div>

@@ -47,7 +47,7 @@ export default async function RootLayout({
   }
   return (
     <div
-      className={`w-full h-full flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
+      className={`w-[100%] h-[100%] flex flex-row ${geistSans.variable} ${geistMono.variable} antialiased`}
     >
       <Servers user={dbUser?.data as Tables<'users'>} />
       <SidebarTopAndMain>{children}</SidebarTopAndMain>

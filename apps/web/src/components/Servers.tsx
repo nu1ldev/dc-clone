@@ -9,7 +9,7 @@ const Servers = ({ user }: { user: Tables<'users'> }) => {
   const { data, isError, isLoading } = useQuery({
     queryKey: ['get-servers'],
     queryFn: async () => {
-      const r = await fetch('http://localhost:9999/get-server', {
+      const r = await fetch('http://localhost:9999/user-servers', {
         method: 'POST',
         headers: {
           'Coming-From': 'Servers.tsx',

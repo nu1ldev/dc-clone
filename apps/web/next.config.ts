@@ -20,6 +20,20 @@ const nextConfig: NextConfig = {
         pathname: '/**',
         search: '',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.sporx.com',
+        port: '',
+        pathname: '/**',
+        search: ''
+      },
+      {
+        protocol: 'https',
+        hostname: '*.*.*',
+        port: '',
+        pathname: '/**',
+        search: ''
+      }
     ]
   }
 };

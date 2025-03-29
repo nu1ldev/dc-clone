@@ -240,22 +240,22 @@ export type Database = {
         Row: {
           created_at: string
           id: number
-          image_url: string | null
-          name: string | null
+          image_url: string
+          message_ids: number[] | null
           pinned_message_ids: number[] | null
         }
         Insert: {
           created_at?: string
           id?: number
-          image_url?: string | null
-          name?: string | null
+          image_url: string
+          message_ids?: number[] | null
           pinned_message_ids?: number[] | null
         }
         Update: {
           created_at?: string
           id?: number
-          image_url?: string | null
-          name?: string | null
+          image_url?: string
+          message_ids?: number[] | null
           pinned_message_ids?: number[] | null
         }
         Relationships: []
@@ -419,25 +419,31 @@ export type Database = {
       users: {
         Row: {
           created_at: string
+          display_name: string | null
           email: string
           id: number
           image_url: string
+          password: string | null
           token: string
           username: string | null
         }
         Insert: {
           created_at?: string
+          display_name?: string | null
           email: string
           id?: number
           image_url: string
+          password?: string | null
           token?: string
           username?: string | null
         }
         Update: {
           created_at?: string
+          display_name?: string | null
           email?: string
           id?: number
           image_url?: string
+          password?: string | null
           token?: string
           username?: string | null
         }

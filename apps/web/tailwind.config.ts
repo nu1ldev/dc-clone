@@ -9,10 +9,9 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
         primary: "#2b2d31",
         secondary: "#313338",
+        animation: '#4c4f54',
         midnightGreen: {
           100: '#509A97',
           200: '#2C8582',
@@ -27,7 +26,8 @@ export default {
       },
       fontFamily: {
         tttrailers: ["TT Trailers Trial", "sans-serif"],
-        gintonord: ['ABC Ginto Nord Unlicensed Trial', 'sans-serif']
+        gintonord: ['ABC Ginto Nord Unlicensed Trial', 'sans-serif'],
+        'funnel-display': ["Funnel Display", "sans-serif"]
       }
     },
   },

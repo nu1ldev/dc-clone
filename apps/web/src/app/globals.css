@@ -1,5 +1,6 @@
 @import url('https://fonts.cdnfonts.com/css/tt-trailers-trial');
 @import url('https://fonts.cdnfonts.com/css/abc-ginto-nord-unlicensed-trial');
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Display:wght@300..800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -20,10 +21,21 @@
 @theme {
   --font-tttrailers: "TT Trailers Trial", "sans-serif";
   --font-ginto-nord-black: "ABC Ginto Nord Unlicensed Trial", "sans-serif";
+  --font-funnel: "Funnel Display", "sans-serif"
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;
+
 }
